@@ -1622,9 +1622,10 @@
                 const usersData = await usersRes.json();
                 const statusData = await statusRes.json();
                 if(usersData.success) {
-                    document.getElementById('totalUsers').textContent = usersData.data.length;
-                    document.getElementById('totalPets').textContent = usersData.data.reduce((sum, u) => sum + (u.petCount||0), 0);
-                    document.getElementById('totalCoins').textContent = usersData.data.reduce((sum, u) => sum + (u.coins||0), 0);
+                    const users = Array.isArray(usersData.data) ? usersData.data : [];
+                    document.getElementById('totalUsers').textContent = users.length;
+                    document.getElementById('totalPets').textContent = users.reduce((sum, u) => sum + (u.petCount||0), 0);
+                    document.getElementById('totalCoins').textContent = users.reduce((sum, u) => sum + (u.coins||0), 0);
                 }
                 if(statusData.success && statusData.data) {
                     document.getElementById('onlineUsers').textContent = statusData.data.onlinePlayers != null ? statusData.data.onlinePlayers : 0;
@@ -1650,14 +1651,14 @@
                 const res = await fetch(url);
                 const data = await res.json();
                 if(data.success) {
-                    usersData = data.data;
-                    const html = data.data.map(u => `
+                    usersData = Array.isArray(data.data) ? data.data : [];
+                    const html = usersData.map(u => `
                         <div class="user-item" onclick="showUserDetail(${u.userId})">
                             <strong>${u.nickname || '未命名'}</strong> (ID: ${u.userId})<br>
                             <small>💰 ${u.coins} | 💎 ${u.gold} | 🥚 ${u.petCount}</small>
                         </div>
                     `).join('');
-                    document.getElementById('userList').innerHTML = html;
+                    document.getElementById('userList').innerHTML = html || '<p class="text-muted">暂无账号，请先在左侧创建账号。</p>';
                 }
             } catch(e) { alert('加载失败: ' + e.message); }
         }

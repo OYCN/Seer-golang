@@ -1600,7 +1600,9 @@ func handleGMGetUsers(w http.ResponseWriter, r *http.Request, gs *gameserver.Gam
 		RoleCreated bool   `json:"roleCreated"`
 	}
 
-	var userList []UserInfo
+	// 始终初始化为空数组。nil slice 会被 JSON 编码成 null，而 GM 页面
+	// 需要对用户列表调用 .map()；没有账号时应返回 [] 而不是 null。
+	userList := make([]UserInfo, 0)
 	if gs.UserDB.UseMySQL() {
 		list, _, err := gs.UserDB.MySQLListUsersForGM(keyword, 10000, 0)
 		if err != nil {

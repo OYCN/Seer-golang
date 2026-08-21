@@ -4,6 +4,7 @@
 .go-build-cache/
 .gocache/
 output/
+bin/
 *.exe
 *.dll
 *.so
@@ -18,9 +19,15 @@ vendor/
 gameres/
 
 # 敏感/本地数据（按需取消注释）
-# users.json.imported
+users.json
+users.json.imported
+res_path.json
+gm_admin_accounts.json
 # data/*.json
 .github-token
+
+# 服务运行日志（bin/log/ 已由 bin/ 覆盖）
+log/
 
 # 编辑器与系统
 .idea/

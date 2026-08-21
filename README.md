@@ -104,6 +104,20 @@ d:\go\
 
 ### 编译
 
+Linux：
+
+```bash
+chmod +x compile.sh
+./compile.sh
+./compile.sh --release
+./compile.sh --watch
+./compile.sh --clean
+```
+
+构建产物为 `bin/gameserver`。
+
+Windows：
+
 ```powershell
 # 普通构建 → test/gameserver_yyyy-MM-dd_HHmm.exe
 .\compile.ps1
