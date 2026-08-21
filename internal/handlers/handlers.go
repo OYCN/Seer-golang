@@ -10531,6 +10531,13 @@ func buildLoginResponse(userID int64, account *userdb.User, gameData *userdb.Gam
 	writeU32(uint32(gameData.CurTitle))
 	buffer = append(buffer, sptboss.BuildBossAchievement(gameData.DefeatedSPTBossIds)...) // bossAchievement 200 字节
 
+	// 部分资源包中的 Client.swf 比仓库内反编译的 UserInfo.setForLoginInfo
+	// 多读取了一段历史保留字段。SocketImpl 会把每个响应隔离成独立 ByteArray，
+	// 因此标准客户端会安全地忽略该尾部；旧版本客户端则不会在 readByte() 时越界。
+	// 这里使用全 0，表示所有未实现的保留状态均为关闭。
+	const compatibilityTailSize = 512
+	buffer = append(buffer, make([]byte, compatibilityTailSize)...)
+
 	return buffer
 }
 

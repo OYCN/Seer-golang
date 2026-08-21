@@ -628,20 +628,16 @@ func (ls *LoginServer) handleCreateRole(conn net.Conn, cmdID int32, userID int64
 	gameData.Color = int(color)
 	ls.userDB.SaveGameData(userID, gameData)
 
-	// 生成新的session（16字节随机数据）
-	session := make([]byte, 16)
-	if _, err := rand.Read(session); err != nil {
-		logger.Error(fmt.Sprintf("生成session失败: %v", err))
+	// 创建角色属于同一次登录流程，客户端随后会在 CMD 105 中继续携带
+	// CMD 104 返回的 session。这里不能生成并保存新 session，否则客户端
+	// 仍携带旧值时会被 CMD 105 的校验错误地拒绝。
+	session := []byte(user.Session)
+	if len(session) != 16 {
+		logger.Warning(fmt.Sprintf("[CREATE_ROLE] 当前 session 长度异常: userId=%d len=%d", userID, len(session)))
 		session = make([]byte, 16)
 	}
 
-	// 保存新session
-	user.Session = string(session)
-	sessionHex := hex.EncodeToString(session)
-	user.SessionHex = sessionHex
-	ls.userDB.SaveUser(user)
-
-	// 返回新session (16字节)
+	// 返回当前登录 session（16字节），保持与 CMD 104 一致。
 	responseBody := make([]byte, 16)
 	copy(responseBody, session)
 
